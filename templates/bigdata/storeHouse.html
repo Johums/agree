@@ -1,0 +1,68 @@
+{% extends "base.html"%}
+
+{% block pagecontent %}
+
+        <div id="page-content-wrapper">
+
+            <div class="content-text">
+                <form class="form-horizontal" role="form" action="{% url 'dataStore' %}" method="post">
+                {% csrf_token %}
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="tablename" name="table0">
+                        </div>
+
+                        <button type="button" class="btn btn-default btn-md" id="add-text">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> ADD
+                        </button>
+
+                        <button type="button" class="btn btn-default btn-md" id="del-text">
+                            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> DEL
+                        </button>
+                    </div>
+
+                    <div class="content-text text-info">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary col-md-3 col-md-offset-1"
+                                          style="align-content: center" name="commit">提交
+                    </button>
+                </form>
+
+            </div> <!-- end panel-body -->
+
+        </div>
+
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+
+text_count = 1;
+
+$("#add-text").click(function(){
+
+    var text_info = "\
+        <div class='form-group'> \
+        <div class='col-md-6'> \
+        <input type='text' class='form-control' placeholder='tablename' name='table" + text_count + "'> \
+        </div> \
+        </div> \
+    ";
+
+    $(".text-info").append(text_info);
+
+    text_count += 1;
+
+}); //end add function
+
+
+$("#del-text").click(function(){
+    
+    $(".text-info").children().last().remove();
+    text_count -= 1;
+    
+});
+
+</script>
+{% endblock %}

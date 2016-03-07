@@ -2,25 +2,23 @@
 
 from utils import db
 
-class table(object):
-    """get table struct info"""
-    def __init__(self, table):
-        self._table = table.upper()
+class table(object): """get table struct info""" def __init__(self, table):
+    self._table = table.upper()
 
         if self._table.find(".") > 0:
             self._owner, self._table = self._table.split(".")
-        else:
+       else:
             self._owner = ""
 
-        print "对象: ", self.ower
-        print self.primaryKey
-        print self.indexs
+        # print "对象: ", self.ower
+        # print self.primaryKey
+        # print self.indexs
 
-   def __repr__(self):
+    def __repr__(self):
         return self._table
 
     @property
-    def ower(self):
+    def owner(self):
         """get table ower """
         if not hasattr(self, "_owner") or self._owner == "":
             sql = """
@@ -29,7 +27,6 @@ class table(object):
 
             ret = db().select(sql)
             owner = ret[0].owner
-            print owner
 
             if self._owner and self._owner != owner:
                 raise ValueError("表所对应的用户不一致!")

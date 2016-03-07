@@ -39,6 +39,6 @@ class db(object):
         print sql
         self._cursor.execute(sql)
         columns = [col[0].lower() for col in self._cursor.description]
-        print "列名", columns
+        print "description ", columns
         return dataSet(self._cursor.fetchall(), columns)
 

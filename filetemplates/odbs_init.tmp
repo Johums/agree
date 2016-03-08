@@ -1,0 +1,43 @@
+#!/bin/sh
+###################输入参数配置#################################
+
+afa_user={{ afa_user }}
+afa_pwd={{ afa_pwd }}
+afa_sid={{ afa_sid }}
+outport_date=$1
+par_date=$2
+
+###############################################################
+lcd_path=/home/dataforetl/i{{ sysname | lower }}
+if [ ! -d $lcd_path/$par_date ]
+then
+    mkdir -p $lcd_path/$par_date
+fi
+
+
+####################日志、文件命名规则定义#########################
+{{ sysname }}_LOGNAME={{ sysname | lower }}_to_odbs_init.log                     #输出的日志文件名(基本无需调整)
+
+XML_COMPLETED_SIZE_NAME={{ sysname }}_ALLFILE_COMPLETED_${par_date}.xml           #核对文件大小的xml文件名称(定义)
+###################导出数据#################################################
+echo '本地日志文件路径: ' $LOGPATH/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
+echo '本地数据仓库路径: ' ${lcd_path}/${par_date}
+
+
+{% for table in tables %}
+echo 'step{{ forloop.counter }} 正在导出{{ table.owner | lower }}.{{ table | lower }}表的数据'
+echo '测试步骤---'>>${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
+echo '导出{{ table.ower }}.{{ table }}  数据测试:' `date` >>${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
+sqlplus -S $afa_user/$afa_pwd@$afa_sid<<!>${lcd_path}/${par_date}/i{{ sysname | lower }}_{{ table }}_INIT_${par_date}.dat
+set pagesize 0
+set linesize 6000
+set termout off
+set feedback off
+select
+{% for col in table.columns %}{% if not forloop.first %}||'@|@'||{{ col.column_name }}{% else %}{{ col.column_name }}{% endif %}
+{% endfor %}||'@|@'
+from {{ table.owner}}.{{ table }}
+quit;
+!
+sleep 3
+{% endfor %}

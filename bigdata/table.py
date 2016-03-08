@@ -2,17 +2,16 @@
 
 from utils import db
 
-class table(object): """get table struct info""" def __init__(self, table):
-    self._table = table.upper()
+class table(object):
+    """get table struct info"""
+    def __init__(self, table):
+        self._table = table.upper()
 
         if self._table.find(".") > 0:
             self._owner, self._table = self._table.split(".")
-       else:
+        else:
             self._owner = ""
 
-        # print "对象: ", self.ower
-        # print self.primaryKey
-        # print self.indexs
 
     def __repr__(self):
         return self._table
@@ -36,9 +35,9 @@ class table(object): """get table struct info""" def __init__(self, table):
         return self._owner
 
     @property
-    def column(self):
+    def columns(self):
         """return column info"""
-        if not hasattr(self, "_column"):
+        if not hasattr(self, "_columns"):
             sql = """
             SELECT t1.column_name,
                    t1.data_type,
@@ -49,13 +48,13 @@ class table(object): """get table struct info""" def __init__(self, table):
              INNER JOIN all_col_comments t2
                 ON t1.table_name = t2.table_name
                AND t1.column_name = t2.column_name
-             WHERE t1.owner = '{self._ower}'
+             WHERE t1.owner = '{self._owner}'
                AND t1.table_name = '{self._table}'
             ORDER BY column_id
             """.format(self = self)
             ret = db().select(sql)
-            self._column = ret
-        return self._column
+            self._columns = ret
+        return self._columns
 
 
     @property

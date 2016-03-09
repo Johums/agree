@@ -6,7 +6,7 @@ class row(object):
     def __init__(self, row, columns):
         self._columns = columns
         self._rowdict = dict(zip(columns, row))
-        print self._rowdict
+        # print self._rowdict
 
 
     def keys(self):
@@ -36,9 +36,8 @@ class db(object):
         self._cursor = connection.cursor()
 
     def select(self, sql):
-        print sql
         self._cursor.execute(sql)
         columns = [col[0].lower() for col in self._cursor.description]
-        print "description ", columns
+        print "description = ", columns
+        print "sql = ", sql
         return dataSet(self._cursor.fetchall(), columns)
-

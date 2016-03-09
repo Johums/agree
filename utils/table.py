@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from utils import db
+from db import db
 
 class table(object):
     """get table struct info"""

@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import get_template
 
-from  table import table
+from utils.table import table
 
 
 def storeHouse(request):

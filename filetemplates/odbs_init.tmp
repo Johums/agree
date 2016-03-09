@@ -16,13 +16,12 @@ fi
 
 
 ####################日志、文件命名规则定义#########################
-{{ sysname }}_LOGNAME={{ sysname | lower }}_to_odbs_init.log                     #输出的日志文件名(基本无需调整)
+{{ sysname }}_LOGNAME=i{{ sysname | lower }}_to_odbs_init.log                     #输出的日志文件名(基本无需调整)
 
-XML_COMPLETED_SIZE_NAME={{ sysname }}_ALLFILE_COMPLETED_${par_date}.xml           #核对文件大小的xml文件名称(定义)
+XML_COMPLETED_SIZE_NAME=i{{ sysname }}_ALLFILE_COMPLETED_${par_date}.xml           #核对文件大小的xml文件名称(定义)
 ###################导出数据#################################################
 echo '本地日志文件路径: ' $LOGPATH/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
 echo '本地数据仓库路径: ' ${lcd_path}/${par_date}
-
 
 {% for table in tables %}
 echo 'step{{ forloop.counter }} 正在导出{{ table.owner | lower }}.{{ table | lower }}表的数据'
@@ -41,3 +40,38 @@ quit;
 !
 sleep 3
 {% endfor %}
+################生成就需文件包括文件名、大小、记录数###############################
+echo '生成汇总数据:' `date` >>${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
+cd ${lcd_path}/${par_date}
+ls -lrt i{{ sysname | lower }}*dat|awk '{print $5,$NF;}'>>${lcd_path}/${par_date}/filesize.tmp
+if [ -f $lcd_path/$par_date/$XML_COMPLETED_SIZE_NAME ]
+then
+    rm -rf $lcd_path/$par_date/$XML_COMPLETED_SIZE_NAME
+    echo "删除汇总文件：$XML_COMPLETED_SIZE_NAME" >>${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
+fi
+while read line
+do
+        filename=`echo $line|awk -F" " '{ print $2 }'`
+        filesize=`echo $line|awk -F" " '{ print $1 }'`
+        filecount=`cat $filename|wc -l|sed 's/ //g'`
+        echo "${filename} ${filecount} ${filesize}">>${lcd_path}/${par_date}/${XML_COMPLETED_SIZE_NAME}
+done<${lcd_path}/${par_date}/filesize.tmp
+
+####################cft传输#####################################################
+sysname = i{{ sysname | lower }}
+echo '上送数据仓库:' `date` >> ${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
+partner="EDWAPPS_00"
+. `sh /home/cft/plugin/bin/cftprofilepath.sh`
+cd /home/cft/plugin/bin
+idakey=`id -u``cftutil listuconf|grep cft.instance_id|awk -F = '{print $2}'|tr -d " "`
+ida=`./HttpInvoker IDA $idakey`
+sh /home/cft/plugin/bin/cftfastsend.sh -p=$partner -d=${lcd_path}/${par_date} -f=*"$par_date"*.dat -pd=/home/ap/dwetl/file/input/${ftpuser}/${sysname}/INIT -m=1 -pm=1 -ruser=dsadm -tida=$ida
+sh /home/cft/plugin/bin/cftsyncendstatus.sh $ida 3600 120
+filesendflag=$?
+echo "======================$filesendflag"
+if [ "$filesendflag" = "0" ]
+then
+  sh /home/cft/plugin/bin/cftfastsend.sh -p=$partner -d=${lcd_path}/${par_date} -f=*"$par_date"*.xml -pd=/home/ap/dwetl/file/input/${ftpuser}/${sysname}/INIT -m=1 -ruser=dsadm
+fi
+echo '结束:' `date` >>${LOGFILE}
+####################################################################################

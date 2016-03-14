@@ -13,9 +13,10 @@ def storeHouse(request):
 
 def dataStore(request):
     if request.method == "POST":
+        sysid = request.POST["sysid"]
         tableList = [table(request.POST[l]) for l in request.POST.keys() if "table" in l]
         response = HttpResponse(content_type="application/x-sh")
-        response["Content-Disposition"] = "attachment; filename='a.sh'"
+        response["Content-Disposition"] = "attachment; filename='i{0}_to_odbs_init.sh'".format(sysid)
         template = get_template("odbs_init.tmp")
         content = {
             "afa_user": "afa",

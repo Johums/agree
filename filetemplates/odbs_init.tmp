@@ -40,6 +40,7 @@ quit;
 !
 sleep 3
 {% endfor %}
+
 ################生成就需文件包括文件名、大小、记录数###############################
 echo '生成汇总数据:' `date` >>${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
 cd ${lcd_path}/${par_date}

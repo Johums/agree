@@ -21,7 +21,7 @@ def dataStore(request):
         response["Content-Disposition"] = "attachment; filename='i{0}_to_odbs_init.sh'".format(sysid)
         template = get_template("odbs_init.tmp")
         parser = configer.baseparser("conf/db.conf")
-        section = parser["devop_env"]
+        section = parser[conf.DEV_ENV]
         content = {
             "afa_user" : section.user,
             "afa_pwd"  : section.password,

@@ -39,8 +39,14 @@ def dataStore(request):
         init_template = get_template("odbs_init.tmp")
         init_file = os.path.join(save_dir, "i{0}_to_odbs_init.sh".format(sysid))
         init_content = init_template.render(Context(content))
-        with open(init_file, 'wb') as fi:
+
+        add_template = get_template("odbs_add.tmp")
+        add_file = os.path.join(save_dir, "i{0}_to_odbs_add.sh".format(sysid))
+        add_content = add_template.render(Context(content))
+
+        with open(init_file, 'wb') as fi, open(add_file, "wb") as fa:
             fi.write(init_content.encode(conf.SH_ENCODING))
+            fa.write(add_content.encode(conf.SH_ENCODING))
 
         response = HttpResponse(content_type="application/x-sh")
         response["Content-Disposition"] = "attachment; filename='i{0}_to_odbs_init.sh'".format(sysid)

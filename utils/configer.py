@@ -40,7 +40,3 @@ class baseparser(object):
             raise ValueError("不存在{0}节点".format(section))
         return iteminfo(self._parser.items(section), self.options(section))
 
-
-if __name__ == '__main__':
-    parser = baseparser("../conf/db.conf")
-    print parser["devop_env"].host

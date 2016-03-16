@@ -25,13 +25,13 @@ fi
 
 echo '本地日志文件路径: ' $LOGPATH/$LOGNAME
 echo '本地数据仓库路径: ' ${lcd_path}/${par_date}
-{% for table in tables %}
+{% for table, condition in tables_and_condition %}
 ###################导出数据#################################################
 echo 'step{{ forloop.counter }} 正在导出 {{ table.owner | lower }}.{{ table | lower }} 增量数据'
 echo '导出{{ table.owner | lower }}.{{ table | lower }}数据:' `date` >> ${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
 echo '导出日期为:' ${par_date} >>${LOGPATH}/${{ "{" }}{{ sysname }}_LOGNAME{{ "}" }}
 
-sqlplus -S $afa_user/$afa_pwd@$afa_sid<<!>${lcd_path}/${par_date}/i{{ sysname | lower }}_{{ table }}_ADD_${par_date}.dat
+sqlplus -S $afa_user/$afa_pwd@$afa_sid<<!>${lcd_path}/${par_date}/i{{ sysname | lower }}_{{ table }}_{% if condition%}ADD{% else %}ALL{% endif %}_${par_date}.dat
 set pagesize 0
 set linesize 8000
 set termout off
@@ -41,6 +41,7 @@ set feedback off
 from {{ table.owner}}.{{ table }}
 where
     1 = 1
+    {% if condition%}and {{ condition  }} = '$par_date'{% endif %}
 quit;
 !
 sleep 3

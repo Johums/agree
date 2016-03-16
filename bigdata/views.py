@@ -19,6 +19,10 @@ def dataStore(request):
     if request.method == "POST":
         sysid = request.POST["sysid"]
         tableList = [request.POST[tb] for tb in request.POST.keys() if "table" in tb]
+        conditionList = [request.POST[cb].strip() for cb in request.POST.keys() if "condition" in cb]
+
+        print "condition = ", conditionList
+
         tables = map(lambda x: table(x), tableList)
 
         save_dir = os.path.join("temp", sysid)
@@ -29,11 +33,11 @@ def dataStore(request):
         parser = configer.baseparser("conf/db.conf")
         section = parser[conf.DEV_ENV]
         content = {
-            "afa_user" : section.user,
-            "afa_pwd"  : section.password,
-            "afa_sid"  : section.sid,
-            "sysname"  : "gkzjzf",
-            "tables"   : tables
+            "afa_user"             : section.user,
+            "afa_pwd"              : section.password,
+            "afa_sid"              : section.sid,
+            "sysname"              : "gkzjzf",
+            "tables_and_condition" : zip(tables, conditionList),
         }
 
         init_template = get_template("odbs_init.tmp")
@@ -51,4 +55,4 @@ def dataStore(request):
         response = HttpResponse(content_type="application/x-sh")
         response["Content-Disposition"] = "attachment; filename='i{0}_to_odbs_init.sh'".format(sysid)
         response.write(init_content)
-    return response
+        return response

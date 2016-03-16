@@ -18,6 +18,10 @@
                             <input type="text" class="form-control" placeholder="tablename" name="table0">
                         </div>
 
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" placeholder="condition" name="condition0">
+                        </div>
+
                         <button type="button" class="btn btn-default btn-md" id="add-text">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> ADD
                         </button>
@@ -51,7 +55,10 @@ $("#add-text").click(function(){
     var text_info = "\
         <div class='form-group'> \
         <div class='col-md-6'> \
-        <input type='text' class='form-control' placeholder='tablename' name='table" + text_count + "'> \
+            <input type='text' class='form-control' placeholder='tablename' name='table" + text_count + "'> \
+        </div> \
+        <div class='col-md-3'> \
+            <input type='text' class='form-control' placeholder='condition' name='condition" + text_count + "'> \
         </div> \
         </div> \
     ";

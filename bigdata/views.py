@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+import shutil
+import zipfile
+import StringIO
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -17,18 +20,17 @@ def storeHouse(request):
 
 def dataStore(request):
     if request.method == "POST":
+
         sysid = request.POST["sysid"]
         tableList = [request.POST[tb] for tb in request.POST.keys() if "table" in tb]
         conditionList = [request.POST[cb].strip() for cb in request.POST.keys() if "condition" in cb]
 
-        print "condition = ", conditionList
-
         tables = map(lambda x: table(x), tableList)
 
         save_dir = os.path.join("temp", sysid)
-
-        if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+        if os.path.exists(save_dir):
+            shutil.rmtree(save_dir)
+        os.mkdir(save_dir)
 
         parser = configer.baseparser("conf/db.conf")
         section = parser[conf.DEV_ENV]
@@ -52,7 +54,13 @@ def dataStore(request):
             fi.write(init_content.encode(conf.SH_ENCODING))
             fa.write(add_content.encode(conf.SH_ENCODING))
 
-        response = HttpResponse(content_type="application/x-sh")
-        response["Content-Disposition"] = "attachment; filename='i{0}_to_odbs_init.sh'".format(sysid)
-        response.write(init_content)
+        memory = StringIO.StringIO()
+        zf = zipfile.ZipFile(memory, "w",  zipfile.ZIP_DEFLATED)
+        for root, dirs, files in os.walk(save_dir):
+            for file in files:
+                zf.write(os.path.join(root, file))
+        zf.close()
+
+        response = HttpResponse(memory.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = "attachment; filename='{0}.zip'".format(sysid)
         return response
